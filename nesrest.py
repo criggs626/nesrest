@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import datetime
 requests.packages.urllib3.disable_warnings()
 
 class Nesrest:
@@ -34,6 +35,35 @@ class Nesrest:
             id = host["host_id"]
             hostDetails = self.getHostDetails(scanID, id)
             print(hostDetails["info"]["host-ip"] + "\t" + str(len(hostDetails["vulnerabilities"])))
+
+    # Return string output of scan details optimized for splunk
+    def outputForSplunk(self,scanID):
+        output = ""
+        details = self.getScanDetails(scanID)
+        scanName = details["info"]["name"]
+        scanTime = datetime.datetime.fromtimestamp(details["info"]["scan_end"]).strftime('%Y-%m-%d %H:%M:%S')
+        for host in details["hosts"]:
+            name = host["hostname"]
+            item={"scan":scanName,"time":scanTime,"hostname":name}
+            hostDetails = self.getHostDetails(scanID,host["host_id"])
+            vulns = []
+            count = 0
+            for vuln in hostDetails["vulnerabilities"]:
+                temp = {}
+                temp["severity"] = vuln["severity"]
+                temp["plugin_family"] = vuln["plugin_family"]
+                temp["plugin_name"] = vuln["plugin_name"]
+                temp["plugin_id"] = vuln["plugin_id"]
+                pluginDetails = self.getScanPluginDetails(scanID,host["host_id"],vuln["plugin_id"])
+                pluginOutput = pluginDetails["outputs"][0]["plugin_output"]
+                temp["details"] = pluginOutput
+                vulns.append(temp)
+                count += 1
+
+            item["vulns"] = vulns
+            item["vulnCount"] = count
+            output += json.dumps(item)+"\n"
+        return output
 
     ###
     # API Functions
@@ -77,6 +107,11 @@ class Nesrest:
     # Return the file from a given token
     def getTokenDownload(self,token):
         response = self.download("tokens/"+str(token)+"/download/",str(token))
+        return response
+
+    # Return Plugin details per scan
+    def getScanPluginDetails(self,scanID,hostID,pluginID):
+        response = self.getRequest("scans/"+str(scanID)+"/hosts/"+str(hostID)+"/plugins/"+str(pluginID),0)
         return response
 
     ###

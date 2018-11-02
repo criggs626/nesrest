@@ -13,6 +13,11 @@ Print a useful summary of the scan, each host and the number of vulnerabilities 
 ```python
 result = nessus.printScanSummary(330)
 ```
+#### Output scan for Splunk
+Like many of you lovely people out there we use a lot of Splunk at our company. Because of this we wanted to be able to output nessus scan data into Splunk. This function returns a string giving the details of a scan in a good format to upload to Splunk. The result includes JSON data for each host, that json has the host name, scan name, time, vulnerability count, and detailed vulnerabilities. The detailed vulnerabilities includes the plugin family, plugin name, plugin output, plugin id, and plugin details. Each host can have multiple vulnerabilities. Example of how to use this is shown below.
+```python
+textOutput = nessus.outputForSplunk(330)
+```
 
 ### API functions
 The following functions are listed by their name in the nessus API documentation and what they are called in this library. (Why named differently? Because I didn't really think of that until now so this is just gonna be our lives now)
@@ -38,3 +43,6 @@ Returns the message status of a given token.
 
 #### tokens:download => getTokenDownload(token)
 Downloads the file given a token, returns with a message indicating the download status.
+
+#### scans:plugin-output => getScanPluginDetails(scanID,hostID,pluginID)
+Returns the plugin details for the given host in the context of a scan.
