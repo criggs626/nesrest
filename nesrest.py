@@ -71,7 +71,7 @@ class Nesrest:
     ###
     # Return a list of folders
     def getFolders(self):
-        response = self.getRequest("folders")
+        response = self.getRequest("folders",0)
         return response["folders"]
 
     # Return a list of scans
