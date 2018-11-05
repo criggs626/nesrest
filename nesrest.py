@@ -17,9 +17,9 @@ class Nesrest:
     # These functions use the API to add more intuitive functionality
     ###
     # Download a scans results given the ID
-    def downloadScan(self,scanID,time):
+    def downloadScan(self,scanID,waitTime):
         token = self.exportRequest(scanID)
-        for i in range(0,time):
+        for i in range(0,waitTime):
             response = self.getTokenStatus(token)
             if(response == "The download is ready."):
                 response = self.getTokenDownload(token)
@@ -56,7 +56,13 @@ class Nesrest:
                 temp["plugin_id"] = vuln["plugin_id"]
                 pluginDetails = self.getScanPluginDetails(scanID,host["host_id"],vuln["plugin_id"])
                 pluginOutput = pluginDetails["outputs"][0]["plugin_output"]
-                temp["details"] = pluginOutput
+                try:
+                    if (len(pluginOutput) > 800):
+                        temp["details"] = "Output to long to display"
+                    else:
+                        temp["details"] = pluginOutput
+                except:
+                    temp["details"] = "No Output"
                 vulns.append(temp)
                 count += 1
 
