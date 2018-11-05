@@ -26,6 +26,16 @@ class Nesrest:
                 return response
             time.sleep(1)
 
+    # Download a scans results given the ID
+    def downloadRaw(self,scanID,waitTime):
+        token = self.exportRequest(scanID)
+        for i in range(0,waitTime):
+            response = self.getTokenStatus(token)
+            if(response == "The download is ready."):
+                response = self.getTokenDownloadRaw(token)
+                return response
+            time.sleep(1)
+
     # Print a scans summary
     def printScanSummary(self,scanID):
         scan = self.getScanDetails(scanID)
@@ -115,6 +125,11 @@ class Nesrest:
         response = self.download("tokens/"+str(token)+"/download/",str(token))
         return response
 
+    # Return the file from a given token
+    def getTokenDownloadRaw(self,token):
+        response = self.getRequest("tokens/"+str(token)+"/download/",1)
+        return response
+
     # Return Plugin details per scan
     def getScanPluginDetails(self,scanID,hostID,pluginID):
         response = self.getRequest("scans/"+str(scanID)+"/hosts/"+str(hostID)+"/plugins/"+str(pluginID),0)
@@ -130,9 +145,13 @@ class Nesrest:
             req = requests.get(self.baseURL+"/"+endpoint, headers=self.header, params=data, verify=False)
             res = json.loads(req.text)
             return res
-        else:
+        elif data == 0:
             req = requests.get(self.baseURL+"/"+endpoint, headers=self.header, verify=False)
             res = json.loads(req.text)
+            return res
+        elif data == 1:
+            req = requests.get(self.baseURL+"/"+endpoint, headers=self.header, verify=False)
+            res = req.text
             return res
 
     # Post request

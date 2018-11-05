@@ -8,6 +8,12 @@ The download scan function will take a scan ID number and download the scan as a
 result = nessus.downloadScan(330,30)
 print(result)
 ```
+#### Download Raw
+The download raw function is the same as download scan except you get the raw of the file instead of saving the file by token name.
+```python
+result = nessus.downloadRaw(330,30)
+print(result)
+```
 #### Print Scan Summary
 Print a useful summary of the scan, each host and the number of vulnerabilities found per host given the scan id number as an input
 ```python
@@ -43,6 +49,9 @@ Returns the message status of a given token.
 
 #### tokens:download => getTokenDownload(token)
 Downloads the file given a token, returns with a message indicating the download status.
+
+#### tokens:download => getTokenRaw(token)
+Returns the raw file given a token.
 
 #### scans:plugin-output => getScanPluginDetails(scanID,hostID,pluginID)
 Returns the plugin details for the given host in the context of a scan.

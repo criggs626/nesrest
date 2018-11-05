@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font
 from tkinter import messagebox
+from tkinter import filedialog
 from nesrest import Nesrest
 
 class Application(tk.Frame):
@@ -59,8 +60,11 @@ class Application(tk.Frame):
     def download(self,name):
         for scan in self.scans:
             if(name == scan["name"]):
-                self.nessus.downloadScan(scan["id"],30)
-                messagebox.showinfo("Status", "The Downlaod has completed")
+                messagebox.showinfo("Status", "The download has begun. Please wait until a confirmation has been given to click anything else")
+                response = self.nessus.downloadRaw(scan["id"],60)
+                file =  filedialog.asksaveasfile(initialdir = "./",title = "Save file",mode='w', defaultextension=".csv")
+                file.write(response)
+                file.close()
                 return None
 
 def main():
