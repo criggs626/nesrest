@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import font
 from tkinter import messagebox
 from tkinter import filedialog
-from nesrest import Nesrest
+from nesrest import Nessus
 
 class Application(tk.Frame):
     def __init__(self, nessus, master=None):
@@ -15,7 +15,7 @@ class Application(tk.Frame):
     def fillFolders(self):
         lable = tk.Label(self.master, text="Folders:")
         lable.grid(row=0,column=0)
-        folders = self.nessus.getFolders()
+        folders = self.nessus.folder.list()
         lb = tk.Listbox(self.master,font=font.Font(size=16),height=20)
         lb.grid(row=1,column=0,padx=2)
         lb.bind('<<ListboxSelect>>', self.folderClick)
@@ -28,7 +28,7 @@ class Application(tk.Frame):
     def fillScans(self,id):
         lable = tk.Label(self.master, text="Scans:")
         lable.grid(row=0,column=1)
-        scans = self.nessus.getScansFromFolder(id)
+        scans = self.nessus.scan.list(id)
         lb = tk.Listbox(self.master,font=font.Font(size=16),height=20)
         lb.grid(row=1,column=1,padx=2)
         self.scans = scans
@@ -71,7 +71,7 @@ def main():
     accessKey = ""
     secretKey = ""
     baseURL = ""
-    nessusAPI = Nesrest(accessKey, secretKey, baseURL)
+    nessusAPI = Nessus(accessKey, secretKey, baseURL)
 
     root = tk.Tk()
     root.title("iQor Nessus Scans")

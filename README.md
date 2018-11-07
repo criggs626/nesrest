@@ -1,7 +1,7 @@
-## Nesrest
+# Nesrest
 This is a python library designed to make interacting with the nessus API easy and conveinent. The library consists of a single python class that has three main sections. The first section is custom functions that are designed for making simple operations easier to completed. Operations like downloaded a file can be done in one step instead of several. The next section is full API integration. Functions that simply interact with the Nessus API and return logical results. The final section is functions designed to do the interaction work such as get and post.
 
-### Custom functions
+## Custom functions
 #### Download Scan
 The download scan function will take a scan ID number and download the scan as a CSV named after the unique token that gets generated during this processes. It has a second input of the time in seconds you would like to wait for the scan to get generated before ending.
 ```python
@@ -25,33 +25,60 @@ Like many of you lovely people out there we use a lot of Splunk at our company. 
 textOutput = nessus.outputForSplunk(330)
 ```
 
-### API functions
-The following functions are listed by their name in the nessus API documentation and what they are called in this library. (Why named differently? Because I didn't really think of that until now so this is just gonna be our lives now)
+## API functions
+The following functions are listed by their name in the nessus API documentation and what they are called in this library. Some of them are named differently because I thought it made more sense. Disagree? Oh well.
 
-#### folders:list => getFolders()
+### Folders
+#### folders:list => nessus.folder.list()
 Returns a list of folders from your system.
 
-#### scans:list => getScans() && getScansFromFolder(folderID)
+### Scans
+#### scans:list => nessus.scans.list() && nessus.scans.list(folderID)
 Get scans returns a list of all scans from your system.
 Get scans from folder returns a list of all scans in a folder given the unique folderID.
 
-#### scans:details => getScanDetails(scanID)
+#### scans:details => nessus.scan.details(scanID)
 Get details of a scan given the scanID.
 
-#### scans:host-details => getHostDetails(scanID,hostID)
+#### scans:host-details => nessus.scan.hostDetails(scanID,hostID)
 Get details of a host given the scanID and hostID.
 
-#### scans:export-request => exportRequest(scanID)
+#### scans:plugin-output => nessus.scan.pluginDetails(scanID,hostID,pluginID)
+Returns the plugin details for the given host in the context of a scan.
+
+#### scans:export-request => nessus.scan.exportRequest(scanID)
 Starts an export request given a scanID and returns the token.
 
-#### tokens:status => getTokenStatus(token)
+### Tokens
+#### tokens:status => nessus.token.status(token)
 Returns the message status of a given token.
 
-#### tokens:download => getTokenDownload(token)
+#### tokens:download => nessus.token.download(token)
 Downloads the file given a token, returns with a message indicating the download status.
 
-#### tokens:download => getTokenRaw(token)
+#### tokens:download => nessus.token.downloadRaw(token)
 Returns the raw file given a token.
 
-#### scans:plugin-output => getScanPluginDetails(scanID,hostID,pluginID)
-Returns the plugin details for the given host in the context of a scan.
+## Examples
+```python
+from nesrest import Nessus
+accessKey = "Your Access Key"
+secretKey = "Your Secret Key"
+baseURL = "http://Your URL"
+nessus = Nessus(accessKey, secretKey, baseURL)
+
+# Get folders
+folders = nessus.folder.list()
+
+# Get scans
+scans = nessus.scan.list()
+
+scanID = 0
+# Get scan details
+details = nessus.scan.details(scanID)
+
+# Splunk output
+splunkOutput = nessus.outputForSplunk(scanID)
+```
+## Graphical Downloader
+The graphical downloader is a working example of something that can be done using the Nessus library. It uses tkinter to create a gui that lets anyone download scan results.
