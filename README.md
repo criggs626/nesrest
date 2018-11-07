@@ -33,7 +33,7 @@ The following functions are listed by their name in the nessus API documentation
 Returns a list of folders from your system.
 
 ### Scans
-#### scans:list => nessus.scans.list() && nessus.scans.list(folderID)
+#### scans:list => nessus.scan.list() && nessus.scan.list(folderID)
 Get scans returns a list of all scans from your system.
 Get scans from folder returns a list of all scans in a folder given the unique folderID.
 
