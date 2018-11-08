@@ -46,7 +46,7 @@ def splunkFolderSave(folders, nessus, config=None):
             scans = nessus.scan.list(folder)
             for scan in scans:
                 for oldScan in config["scans"]:
-                    if oldScan["id"] == scan["id"]:
+                    if oldScan["id"] == scan["id"] and scan["status"] != "running":
                         if scan["last_modification_date"] > oldScan["lastModified"]:
                             final += nessus.outputForSplunk(scan["id"])
                             oldScan["lastModified"] = scan["last_modification_date"]
