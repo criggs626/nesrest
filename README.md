@@ -20,7 +20,7 @@ Print a useful summary of the scan, each host and the number of vulnerabilities 
 result = nessus.printScanSummary(330)
 ```
 #### Output scan for Splunk
-Like many of you lovely people out there we use a lot of Splunk at our company. Because of this we wanted to be able to output nessus scan data into Splunk. This function returns a string giving the details of a scan in a good format to upload to Splunk. The result includes JSON data for each host, that json has the host name, scan name, time, vulnerability count, and detailed vulnerabilities. The detailed vulnerabilities includes the plugin family, plugin name, plugin output, plugin id, and plugin details. Each host can have multiple vulnerabilities. Example of how to use this is shown below.
+Like many of you lovely people out there we use a lot of Splunk at our company. Because of this we wanted to be able to output nessus scan data into Splunk. This function returns a string giving the details of a scan in a good format to upload to Splunk. The result includes JSON data for each host, that json has the host name, scan name, time, vulnerability count, and detailed vulnerabilities. The detailed vulnerabilities includes the plugin family, plugin name, plugin output, plugin id, and plugin details. Each host can have multiple vulnerabilities. Example of how to use this is shown below. Pro tip, set when configuring the source type set **add the TRUNCATE variable and set it to 20,000** or so. Scan outputs are big.
 ```python
 textOutput = nessus.outputForSplunk(330)
 ```
