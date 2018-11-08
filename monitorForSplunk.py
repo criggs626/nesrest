@@ -25,6 +25,7 @@ def loadConfig(folders, nessus):
         configFile = open("config.json","w")
         configFile.write(json.dumps(config))
         configFile.close()
+        splunkFolderSave(folders, nessus)
         return config
 
 def updateConfig(config):
@@ -33,20 +34,26 @@ def updateConfig(config):
     configFile.write(json.dumps(config))
     configFile.close()
 
-def splunkFolderSave(folders, config, nessus):
+def splunkFolderSave(folders, nessus, config=None):
     final = ""
-    for folder in folders:
-        scans = nessus.scan.list(folder)
-        for scan in scans:
-            for oldScan in config["scans"]:
-                if oldScan["id"] == scan["id"]:
-                    if scan["last_modification_date"] > oldScan["lastModified"]:
-                        final += nessus.outputForSplunk(scan["id"])
-                        oldScan["lastModified"] = scan["last_modification_date"]
+    if config is None:
+        for folder in folders:
+            scans = nessus.scan.list(folder)
+            for scan in scans:
+                final += nessus.outputForSplunk(scan["id"])
+    else:
+        for folder in folders:
+            scans = nessus.scan.list(folder)
+            for scan in scans:
+                for oldScan in config["scans"]:
+                    if oldScan["id"] == scan["id"]:
+                        if scan["last_modification_date"] > oldScan["lastModified"]:
+                            final += nessus.outputForSplunk(scan["id"])
+                            oldScan["lastModified"] = scan["last_modification_date"]
+                        else:
+                            break
                     else:
-                        break
-                else:
-                    pass
+                        pass
 
     outfile = open("nessusScans.log","a")
     outfile.write(final)
@@ -68,7 +75,7 @@ def main():
 
     # Load config
     config = loadConfig(folders, nessus)
-    config = splunkFolderSave(folders, config, nessus)
+    config = splunkFolderSave(folders, nessus, config)
     updateConfig(config)
 
 
