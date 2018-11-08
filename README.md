@@ -82,3 +82,5 @@ splunkOutput = nessus.outputForSplunk(scanID)
 ```
 ## Graphical Downloader
 The graphical downloader is a working example of something that can be done using the Nessus library. It uses tkinter to create a gui that lets anyone download scan results.
+## Monitor for Splunk
+This python file is another working demo to show how you can output folders for Splunk. The script makes it's own config that tracks when a scan was last modified and will only update the log if the scan has been run again. The results of this script are written to a log which can be monitored by Splunk or forwarded however you'd like. Now I know what you're thinking "Why don't we just use the Splunk app", well if your scanner is behind firewalls you can use this script and syslog to send it out, and personally I like my JSON formatted output better than the default one. It is much more readable and allows quicker action on scan results. PS. use a cron job or something to schedule this script to run.
