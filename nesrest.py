@@ -118,6 +118,12 @@ class Nesrest:
             res = json.loads(req.text)
             return res
 
+    # Put request
+    def putRequest(self,endpoint,data):
+        req = requests.put(self.baseURL+"/"+endpoint, headers=self.header, data=data, verify=False)
+        res = json.loads(req.text)
+        return res
+
     # To download a file
     def downloadFile(self,endpoint,token):
         try:
