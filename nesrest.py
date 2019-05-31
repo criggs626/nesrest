@@ -49,38 +49,20 @@ class Nessus:
 
     # Return string output of scan details optimized for splunk
     def outputForSplunk(self,scanID):
-        output = ""
         details = self.scan.details(scanID)
         scanName = details["info"]["name"]
         scanTime = datetime.datetime.fromtimestamp(details["info"]["scan_end"]).strftime('%Y-%m-%d %H:%M:%S')
+        results = {}
         for host in details["hosts"]:
-            name = host["hostname"]
-            item={"scan":scanName,"time":scanTime,"hostname":name}
             hostDetails = self.scan.hostDetails(scanID,host["host_id"])
-            vulns = []
-            count = 0
             for vuln in hostDetails["vulnerabilities"]:
-                temp = {}
-                temp["severity"] = vuln["severity"]
-                temp["plugin_family"] = vuln["plugin_family"]
-                temp["plugin_name"] = vuln["plugin_name"]
-                temp["plugin_id"] = vuln["plugin_id"]
-                pluginDetails = self.scan.pluginDetails(scanID,host["host_id"],vuln["plugin_id"])
-                pluginOutput = pluginDetails["outputs"][0]["plugin_output"]
-                try:
-                    if (len(pluginOutput) > 800):
-                        temp["details"] = "Output to long to display"
-                    else:
-                        temp["details"] = pluginOutput
-                except:
-                    temp["details"] = "No Output"
-                vulns.append(temp)
-                count += 1
+                if vuln["severity"]>2:
+                    try:
+                        results[vuln["plugin_name"]]["hosts"].append(host["hostname"])
+                    except:
+                        results[vuln["plugin_name"]] = {"hosts":[host["hostname"]],"severity":vuln["severity"],"scanName":scanName,"scanTime":scanTime}
 
-            item["vulns"] = vulns
-            item["vulnCount"] = count
-            output += json.dumps(item)+"\n"
-        return output
+        return (json.dumps(results)+"\n","")[len(results)<1]
 
 class Nesrest:
     # Initialize the nesrest class
