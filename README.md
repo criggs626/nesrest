@@ -59,6 +59,9 @@ Downloads the file given a token, returns with a message indicating the download
 #### tokens:download => nessus.token.downloadRaw(token)
 Returns the raw file given a token.
 
+### Policies
+There was stuff and functions added for policies, turns out you need security center for that. As such documenting these changes aren't a priority for your average nessus pro user like me. They'll get documented eventually but for now the functions are relatively straight forward.
+
 ## Examples
 ```python
 from nesrest import Nessus

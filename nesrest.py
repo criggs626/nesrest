@@ -10,6 +10,8 @@ class Nessus:
         self.scan = Scanner(akey, skey, url)
         self.folder = Folder(akey, skey, url)
         self.token = Token(akey, skey, url)
+        self.policy = Policy(akey, skey, url)
+        self.plugin = Plugin(akey, skey, url)
 
     ###
     # Custom Functions
@@ -121,7 +123,7 @@ class Nesrest:
     # Put request
     def putRequest(self,endpoint,data):
         req = requests.put(self.baseURL+"/"+endpoint, headers=self.header, data=data, verify=False)
-        res = json.loads(req.text)
+        res = req.status_code
         return res
 
     # To download a file
@@ -192,4 +194,40 @@ class Token(Nesrest):
     # Return the file from a given token
     def downloadRaw(self,token):
         response = self.getRequest("tokens/"+str(token)+"/download/",1)
+        return response
+
+class Policy(Nesrest):
+    # Return a list of policies
+    def list(self):
+        response = self.getRequest("policies/",0)
+        return response["policies"]
+
+    # Get policy details
+    def details(self,policyID):
+        response = self.getRequest("policies/"+str(policyID),0)
+        return response
+
+    # Configure a policy
+    def configure(self,policyID,data):
+        response = self.putRequest("policies/"+str(policyID),data)
+        return response
+
+    # Create a policy
+    def create(self,data):
+        response = self.postRequest("policies/",data)
+        return response
+
+class Plugin(Nesrest):
+    # Return a list of plugin Families or plugins
+    def list(self,familyID=None):
+        if familyID is None:
+            response = self.getRequest("plugins/families",0)
+            return response["families"]
+        else:
+            response = self.getRequest("plugins/families/"+str(familyID),0)
+            return response
+
+    # Get plugin details
+    def details(self,pluginID):
+        response = self.getRequest("plugins/plugin/"+str(pluginID),0)
         return response
