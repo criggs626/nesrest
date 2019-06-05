@@ -60,9 +60,14 @@ class Nessus:
                     try:
                         results[vuln["plugin_name"]]["hosts"].append(host["hostname"])
                     except:
-                        results[vuln["plugin_name"]] = {"hosts":[host["hostname"]],"severity":vuln["severity"],"scanName":scanName,"scanTime":scanTime}
+                        results[vuln["plugin_name"]] = {"hosts":[host["hostname"]],"severity":vuln["severity"]}
 
-        return (json.dumps(results)+"\n","")[len(results)<1]
+        final = ""
+        for key in results:
+            temp = {"vulnerability":key,"severity":results[key]["severity"],"scanName":scanName,"scanTime":scanTime,"hostLength":len(results[key]["hosts"]),"hosts":results[key]["hosts"]}
+            final += json.dumps(temp) + "\n"
+
+        return (final,"")[len(results)<1]
 
 class Nesrest:
     # Initialize the nesrest class
