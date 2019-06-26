@@ -2,6 +2,7 @@ import requests
 import json
 import time
 import datetime
+import re
 requests.packages.urllib3.disable_warnings()
 
 class Nessus:
@@ -57,10 +58,29 @@ class Nessus:
             hostDetails = self.scan.hostDetails(scanID,host["host_id"])
             for vuln in hostDetails["vulnerabilities"]:
                 if vuln["severity"]>2:
+                    tempHost = {"hostName":host["hostname"]}
+                    if not re.match("\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}",host["hostname"]) is None:
+                        # MAC Identification
+                        macOutput = self.scan.pluginDetails(scanID,host["host_id"],86420)["outputs"]
+                        if not macOutput is None:
+                            macOutput = re.search("[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}",macOutput[0]["plugin_output"]).group(0)
+                            tempHost["mac"] = macOutput
+                        # OS Identification
+                        osOutput = self.scan.pluginDetails(scanID,host["host_id"],11936)["outputs"]
+                        if not osOutput is None:
+                            osOutput = self.processOutputs(osOutput)
+                            tempHost["os"] = osOutput
+                        # Syn Scan
+                        synOutput = self.scan.pluginDetails(scanID,host["host_id"],11219)["outputs"]
+                        if not synOutput is None:
+                            temp = ""
+                            for var in synOutput:
+                                temp += re.search("\d{1,4}",var["plugin_output"]).group(0)+","
+                            tempHost["ports"] = temp[:-1]
                     try:
-                        results[vuln["plugin_name"]]["hosts"].append(host["hostname"])
+                        results[vuln["plugin_name"]]["hosts"].append(tempHost)
                     except:
-                        results[vuln["plugin_name"]] = {"hosts":[host["hostname"]],"severity":vuln["severity"]}
+                        results[vuln["plugin_name"]] = {"hosts":[tempHost],"severity":vuln["severity"]}
 
         final = ""
         for key in results:
