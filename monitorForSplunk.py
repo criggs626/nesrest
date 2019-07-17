@@ -35,12 +35,12 @@ def updateConfig(config):
     configFile.close()
 
 def splunkFolderSave(folders, nessus, config=None):
-    final = ""
+    outfile = open("nessusScans.json","a")
     if config is None:
         for folder in folders:
             scans = nessus.scan.list(folder)
             for scan in scans:
-                final += nessus.outputForSplunk(scan["id"])
+                outfile.write(nessus.outputForSplunk(scan["id"]))
     else:
         for folder in folders:
             scans = nessus.scan.list(folder)
@@ -48,15 +48,13 @@ def splunkFolderSave(folders, nessus, config=None):
                 for oldScan in config["scans"]:
                     if oldScan["id"] == scan["id"] and scan["status"] != "running":
                         if scan["last_modification_date"] > oldScan["lastModified"]:
-                            final += nessus.outputForSplunk(scan["id"])
+                            outfile.write(nessus.outputForSplunk(scan["id"]))
                             oldScan["lastModified"] = scan["last_modification_date"]
                         else:
                             break
                     else:
                         pass
 
-    outfile = open("nessusScans.log","a")
-    outfile.write(final)
     outfile.close()
     return config
 
@@ -66,12 +64,11 @@ def main():
     accessKey = ""
     secretKey = ""
     baseURL = ""
+    folders = []
 
     # Create Nessus Object
     nessus = Nessus(accessKey, secretKey, baseURL)
 
-    # Specify folders to sync with Splunk
-    folders = [301,333,120]
 
     # Load config
     config = loadConfig(folders, nessus)

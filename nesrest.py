@@ -68,8 +68,10 @@ class Nessus:
                         # OS Identification
                         osOutput = self.scan.pluginDetails(scanID,host["host_id"],11936)["outputs"]
                         if not osOutput is None:
-                            osOutput = self.processOutputs(osOutput)
-                            tempHost["os"] = osOutput
+                            finalOS = ""
+                            for os in osOutput:
+                                finalOS += os["plugin_output"] + "\n"
+                            tempHost["os"] = finalOS
                         # Syn Scan
                         synOutput = self.scan.pluginDetails(scanID,host["host_id"],11219)["outputs"]
                         if not synOutput is None:
