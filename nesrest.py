@@ -144,6 +144,12 @@ class Nesrest:
         res = req.status_code
         return res
 
+    # Delete request
+    def deleteRequest(self,endpoint,data):
+        req = requests.delete(self.baseURL+"/"+endpoint, headers=self.header, data=data, verify=False)
+        res = req.status_code
+        return res
+
     # To download a file
     def downloadFile(self,endpoint,token):
         try:
@@ -197,6 +203,11 @@ class Scanner(Nesrest):
     def exportRequest(self,scanID):
         response = self.postRequest("scans/"+str(scanID)+"/export",{"format":"csv"})
         return response["token"]
+
+    # Request a scan export
+    def deleteHistory(self,scanID,historyID):
+        response = self.deleteRequest("scans/"+str(scanID)+"/"+str(historyID),0)
+        return response
 
 class Token(Nesrest):
     # Return the status of a given token
