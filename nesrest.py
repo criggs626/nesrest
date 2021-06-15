@@ -57,21 +57,21 @@ class Nessus:
         for host in details["hosts"]:
             hostDetails = self.scan.hostDetails(scanID,host["host_id"])
             for vuln in hostDetails["vulnerabilities"]:
-                if vuln["severity"]>2:
+                if vuln["severity"]>0:
                     tempHost = {"hostName":host["hostname"]}
+                    # OS Identification
+                    osOutput = self.scan.pluginDetails(scanID,host["host_id"],11936)["outputs"]
+                    if not osOutput is None:
+                        finalOS = ""
+                        for os in osOutput:
+                            finalOS += os["plugin_output"] + "\n"
+                        tempHost["os"] = finalOS
                     if not re.match("\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}",host["hostname"]) is None:
                         # MAC Identification
                         macOutput = self.scan.pluginDetails(scanID,host["host_id"],86420)["outputs"]
                         if not macOutput is None:
                             macOutput = re.search("[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}",macOutput[0]["plugin_output"]).group(0)
                             tempHost["mac"] = macOutput
-                        # OS Identification
-                        osOutput = self.scan.pluginDetails(scanID,host["host_id"],11936)["outputs"]
-                        if not osOutput is None:
-                            finalOS = ""
-                            for os in osOutput:
-                                finalOS += os["plugin_output"] + "\n"
-                            tempHost["os"] = finalOS
                         # Syn Scan
                         synOutput = self.scan.pluginDetails(scanID,host["host_id"],11219)["outputs"]
                         if not synOutput is None:
@@ -82,11 +82,20 @@ class Nessus:
                     try:
                         results[vuln["plugin_name"]]["hosts"].append(tempHost)
                     except:
-                        results[vuln["plugin_name"]] = {"hosts":[tempHost],"severity":vuln["severity"]}
+                        # Solution Finding
+                        pluginID = vuln["plugin_id"]
+                        pluginDetails = self.plugin.details(pluginID)["attributes"]
+                        for attribute in pluginDetails:
+                            if attribute["attribute_name"] == "solution":
+                                solution = attribute["attribute_value"]
+                                break
+                            else:
+                                solution = "None Found"
+                        results[vuln["plugin_name"]] = {"hosts":[tempHost],"severity":vuln["severity"],"solution":solution,"details":"https://www.tenable.com/plugins/nessus/"+str(pluginID)}
 
         final = ""
         for key in results:
-            temp = {"vulnerability":key,"severity":results[key]["severity"],"scanName":scanName,"scanTime":scanTime,"hostLength":len(results[key]["hosts"]),"hosts":results[key]["hosts"]}
+            temp = {"vulnerability":key,"severity":results[key]["severity"],"solution":results[key]["solution"],"details":results[key]["details"],"scanName":scanName,"scanTime":scanTime,"hostLength":len(results[key]["hosts"]),"hosts":results[key]["hosts"]}
             final += json.dumps(temp) + "\n"
 
         return (final,"")[len(results)<1]
